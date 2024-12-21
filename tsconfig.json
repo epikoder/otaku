@@ -32,6 +32,9 @@
       "@assets/*": [
         "./assets/*"
       ],
+      "@utils/*": [
+        "./utils/*"
+      ],
     }
   },
   "exclude": [

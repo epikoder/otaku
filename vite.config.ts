@@ -19,6 +19,12 @@ export default defineConfig({
           new URL("./assets", import.meta.url),
         ),
       },
+      {
+        find: "@utils",
+        replacement: fileURLToPath(
+          new URL("./utils", import.meta.url),
+        ),
+      },
     ],
   },
 });
