@@ -19,10 +19,20 @@
     ],
     "types": [
       "vite/client",
-      "vike-react"
+      "vike-react",
+      "bun"
     ],
     "jsx": "preserve",
-    "jsxImportSource": "react"
+    "jsxImportSource": "react",
+    "baseUrl": "./",
+    "paths": {
+      "@components/*": [
+        "./components/*"
+      ],
+      "@assets/*": [
+        "./assets/*"
+      ],
+    }
   },
   "exclude": [
     "dist"
