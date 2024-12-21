@@ -57,7 +57,7 @@ export default function WalletConnect(
     return (
         <button
             onClick={handleToggleConnect}
-            className="px-4 py-2 rounded-lg text-white w-52 overflow-ellipsis whitespace-nowrap line-clamp-1 transition-all duration-300"
+            className="px-4 py-1.5 rounded-lg text-white w-52 overflow-ellipsis whitespace-nowrap line-clamp-1 transition-all duration-300"
             style={{
                 backgroundColor: isActive ? "#303030" : "#F11313",
             }}
