@@ -29,7 +29,7 @@ const app = new Elysia({
     prefix: "/assets",
     assets: "dist/client/assets/",
     alwaysStatic: true,
-})).use(vike);
+}));
 
 app.use(cache).post("/streams", async ({ cache, request }) => {
     if (request.headers.get("api-key") !== Bun.env.STREAM_KEY) {
@@ -50,7 +50,7 @@ app.use(cache).post("/streams", async ({ cache, request }) => {
     return new Response("success", { status: 200 });
 });
 
-app.use(cache).ws("/live", {
+app.ws("/live", {
     open(ws) {
         console.log(`${ws.id} connected`);
         new Promise(async () => {
@@ -70,5 +70,18 @@ app.use(cache).ws("/live", {
     },
 });
 
+app.use(cache).get(
+    "/api/chat-history/:address",
+    async ({ cache, params: { address } }) => {
+        if (address) {
+            const chatString = await cache.get(address);
+            if (!chatString) return {};
+            const chat = JSON.parse(chatString);
+            return { chat };
+        }
+    },
+);
+
+app.use(vike);
 app.listen(port);
 console.log(`Server started on: http://${hostname}:${port}`);

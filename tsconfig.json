@@ -35,6 +35,9 @@
       "@utils/*": [
         "./utils/*"
       ],
+      "@hooks/*": [
+        "./hooks/*"
+      ],
     }
   },
   "exclude": [

@@ -25,6 +25,12 @@ export default defineConfig({
           new URL("./utils", import.meta.url),
         ),
       },
+      {
+        find: "@hooks",
+        replacement: fileURLToPath(
+          new URL("./hooks", import.meta.url),
+        ),
+      },
     ],
   },
 });
