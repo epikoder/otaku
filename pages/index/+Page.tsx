@@ -1,8 +1,11 @@
-import { Microphone, SendIcon } from "@components/Icons";
+import { SendIcon } from "@components/Icons";
 import { Fragment } from "react/jsx-runtime";
 import senseiUrl from "@assets/sensei.svg";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { SystemBubble, UserBubble } from "@components/Bubble";
+import { getIntent } from "@utils/prompt";
+import { GetChatHistory } from "../../utils/get_chat_history";
+import useSelectedAccount from "@hooks/useSelectedAccount";
 
 const __ChatContext__ = createContext<{
   chats: Message[];
@@ -11,6 +14,17 @@ const __ChatContext__ = createContext<{
 
 export default function () {
   const [chats, setChats] = useState<Message[]>([]);
+  const account = useSelectedAccount();
+
+  const _load_chat_history = async (account: string) => {
+    await GetChatHistory(account);
+  };
+
+  useEffect(() => {
+    if (account) {
+      _load_chat_history(account);
+    }
+  }, [account]);
 
   return (
     <Fragment>
@@ -37,7 +51,8 @@ const PromptInput = () => {
   const [isReady, setIsReady] = useState(true);
   const chatcontext = useContext(__ChatContext__);
 
-  const sendPrompt = (text: string) => {
+  const sendPrompt = async (text: string) => {
+    await getIntent(text);
     chatcontext.addChatLog({
       intent: [],
       messaage: text,

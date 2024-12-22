@@ -17,8 +17,8 @@ export const getArg = (key: string, def: any) => {
     return value;
 };
 
-export const createRedisCache = async () => {
-    return await createClient()
+export const createRedisCache = async (database: number = 1) => {
+    return await createClient({ database })
         .on("error", (err) => console.log("Redis Client Error", err))
         .connect();
 };
