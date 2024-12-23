@@ -3,6 +3,7 @@ import { Elysia, t } from "elysia";
 import { staticPlugin } from "@elysiajs/static";
 import "./dist/server/entry.mjs";
 import { vikeMiddleware } from "server/middleware";
+import { getIntent } from "server/prompt/intent";
 
 Bun.env.NODE_ENV = process.env.NODE_ENV ?? "production";
 const port = getArg("port", process.env.PORT ?? 9000);
@@ -79,6 +80,17 @@ app.use(cache).get(
             const chat = JSON.parse(chatString);
             return { chat };
         }
+    },
+);
+
+app.use(cache).post(
+    "/api/intent",
+    async ({ cache, request }) => {
+        const body = await request.json();
+        if (!body.prompt) {
+            return {};
+        }
+        return await getIntent(body.prompt);
     },
 );
 
