@@ -1,12 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { Connection } from "@solana/web3.js";
-import { prepareTokenTransfer } from "./spl-token-transfer";
-import { prepareSOLTransfer } from "./sol-transfer";
+import { prepareTokenTransfer } from "./spl_token_transfer";
+import { prepareSOLTransfer } from "./sol_transfer";
 
 export const anthropic = new Anthropic({ apiKey: Bun.env.ANTHROPIC_API_KEY });
 export const connection = new Connection(
-    Bun.env.SOLANA_ENDPOINT_MAINNET as string,
-    "confirmed"
+    Bun.env.SOLANA_ENDPOINT as string,
+    "confirmed",
 );
 
 export function parseJSONOrObject(input: any) {

@@ -78,11 +78,5 @@ async function prepareSOLTransfer(prompt: string, publicKey: PublicKey) {
 //     process.stdout.write(chunk.choices[0]?.delta?.content || "");
 // }
 
-const prompt = "Send 1 SOL to 7xKpzXSaga3LkRoMmgKq4j7HbAQj3mdQrY7kMh7ufnQh";
-const txObject = await prepareSOLTransfer(
-    prompt,
-    new PublicKey("7xKpzXSaga3LkRoMmgKq4j7HbAQj3mdQrY7kMh7ufnQh")
-);
-console.log(txObject);
 
 export { prepareSOLTransfer };

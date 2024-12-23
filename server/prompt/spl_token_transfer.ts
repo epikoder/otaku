@@ -2,8 +2,8 @@ import {
     Connection,
     Keypair,
     PublicKey,
-    Transaction,
     SystemProgram,
+    Transaction,
 } from "@solana/web3.js";
 import {
     createAssociatedTokenAccountInstruction,
@@ -32,12 +32,11 @@ async function getSafeTokenAccount(
     connection: Connection,
     mint: PublicKey,
     owner: PublicKey,
-    payer: PublicKey
+    payer: PublicKey,
 ): Promise<PublicKey> {
     try {
         // Check if the owner is a program (off-curve)
-        const isProgram =
-            owner.equals(SystemProgram.programId) ||
+        const isProgram = owner.equals(SystemProgram.programId) ||
             owner.toBase58().startsWith("1");
 
         if (isProgram) {
@@ -48,7 +47,7 @@ async function getSafeTokenAccount(
                     TOKEN_PROGRAM_ID.toBuffer(),
                     mint.toBuffer(),
                 ],
-                new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL")
+                new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
             );
             return tokenAccount;
         }
@@ -58,7 +57,7 @@ async function getSafeTokenAccount(
             mint,
             owner,
             true, // allow owner to be a PDA
-            TOKEN_PROGRAM_ID
+            TOKEN_PROGRAM_ID,
         );
     } catch (error) {
         console.error("Error getting token account:", error);
@@ -66,7 +65,7 @@ async function getSafeTokenAccount(
         // Last resort PDA method
         const [tokenAccount] = PublicKey.findProgramAddressSync(
             [owner.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
-            new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL")
+            new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
         );
 
         return tokenAccount;
@@ -81,7 +80,7 @@ async function getSafeTokenAccount(
  */
 async function getTokenDecimals(
     connection: Connection,
-    mintAddress: PublicKey
+    mintAddress: PublicKey,
 ): Promise<number> {
     try {
         const mintInfo = await getMint(connection, mintAddress);
@@ -100,7 +99,7 @@ async function getTokenDecimals(
  */
 async function accountExists(
     connection: Connection,
-    account: PublicKey
+    account: PublicKey,
 ): Promise<boolean> {
     try {
         const accountInfo = await connection.getAccountInfo(account);
@@ -119,7 +118,7 @@ async function accountExists(
  */
 async function prepareTokenTransfer(
     prompt: string,
-    senderPublicKey: PublicKey
+    senderPublicKey: PublicKey,
 ): Promise<{
     transaction: Transaction;
     details: TransactionDetails;
@@ -153,14 +152,13 @@ async function prepareTokenTransfer(
         });
 
         // Extract text response
-        const responseText =
-            response.content
-                .find((item) => item.type === "text")
-                ?.text.trim() ?? "";
+        const responseText = response.content
+            .find((item) => item.type === "text")
+            ?.text.trim() ?? "";
 
         // Parse response
         const extractedDetails = parseJSONOrObject(
-            responseText
+            responseText,
         ) as TransactionDetails;
 
         // Validate extracted details
@@ -176,7 +174,7 @@ async function prepareTokenTransfer(
         // Convert to PublicKey
         const mintAddress = new PublicKey(extractedDetails.mintAddress);
         const recipientPublicKey = new PublicKey(
-            extractedDetails.recipientAddress
+            extractedDetails.recipientAddress,
         );
 
         // Prepare token accounts
@@ -185,13 +183,13 @@ async function prepareTokenTransfer(
                 connection,
                 mintAddress,
                 senderPublicKey,
-                senderPublicKey
+                senderPublicKey,
             ),
             getSafeTokenAccount(
                 connection,
                 mintAddress,
                 recipientPublicKey,
-                senderPublicKey
+                senderPublicKey,
             ),
         ]);
 
@@ -201,7 +199,7 @@ async function prepareTokenTransfer(
         // Check if recipient token account exists
         const recipientAccountInitialized = await accountExists(
             connection,
-            recipientTokenAccount
+            recipientTokenAccount,
         );
         if (!recipientAccountInitialized) {
             // Add instruction to create recipient's token account
@@ -210,8 +208,8 @@ async function prepareTokenTransfer(
                     senderPublicKey, // Payer
                     recipientTokenAccount,
                     recipientPublicKey,
-                    mintAddress
-                )
+                    mintAddress,
+                ),
             );
         }
 
@@ -224,8 +222,8 @@ async function prepareTokenTransfer(
                 senderTokenAccount,
                 recipientTokenAccount,
                 senderPublicKey,
-                BigInt(Math.floor(extractedDetails.amount * 10 ** decimals))
-            )
+                BigInt(Math.floor(extractedDetails.amount * 10 ** decimals)),
+            ),
         );
 
         // Create transaction
@@ -244,30 +242,5 @@ async function prepareTokenTransfer(
         throw error;
     }
 }
-
-// Example usage
-async function main() {
-    try {
-        const senderPublicKey = new PublicKey(
-            "8LbNkQgvJHkGsF6poBTRzxi3TNEFE7xHzfwQKjMWNLko"
-        );
-        const prompt =
-            "Send 100 USDC to FX5qToQUZztsaoTpDiitb9tNCB8L9gEnsoc6Hq38Lfkq";
-
-        const { transaction, details } = await prepareTokenTransfer(
-            prompt,
-            senderPublicKey
-        );
-        console.log("Transaction prepared:", details);
-        console.log("Transaction object:", transaction);
-
-        // Additional logic for signing and sending would go here
-    } catch (error) {
-        console.error("Transaction preparation failed:", error);
-    }
-}
-
-// Uncomment to run
-// main();
 
 export { prepareTokenTransfer };
