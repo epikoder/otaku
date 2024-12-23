@@ -3,6 +3,7 @@ import { Web3ReactSelectedHooks } from "@web3-react/core";
 import { Connector } from "@web3-react/types";
 import { ActivityIndicator } from "./Icons";
 import Toast from "@utils/toast";
+import { showDialog } from "./Dialog";
 
 export default function WalletConnect(
     { connector, hooks, name }: {
@@ -31,11 +32,29 @@ export default function WalletConnect(
             return Toast.error("No Solana wallet found. install Phantom");
         }
         if (isActive) {
-            if (connector?.deactivate) {
-                void connector.deactivate();
-            } else {
-                void connector.resetState();
-            }
+            showDialog(
+                ({ closeFn }) => (
+                    <div className="bg-[#1E1E1E] w-52 flex flex-col justify-center items-center p-4 rounded-lg shadow-md gap-12">
+                        <div>
+                            <div className="text-[#F11313]">
+                                Logout
+                            </div>
+                        </div>
+                        <button
+                            className="px-3 py-1 text-zinc-200 rounded-lg bg-[#F11313]"
+                            onClick={() => {
+                                connector?.deactivate
+                                    ? connector.deactivate()
+                                    : connector.resetState();
+                                closeFn();
+                            }}
+                        >
+                            Logout
+                        </button>
+                    </div>
+                ),
+                false,
+            );
         } else if (!isActivating) {
             setConnectionStatus("Connecting");
             Promise.resolve(connector.activate(1))
