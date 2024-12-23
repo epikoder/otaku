@@ -6,6 +6,12 @@ import {
 } from "@solana/web3.js";
 import { anthropic } from ".";
 
+interface SolTransferToAddressIntent {
+    recipientAddress: string | null;
+    amount: number;
+    contact: string | null;
+}
+
 async function prepareSOLTransfer(prompt: string, publicKey: PublicKey) {
     try {
         const response = await anthropic.messages.create({
@@ -16,7 +22,7 @@ async function prepareSOLTransfer(prompt: string, publicKey: PublicKey) {
                     role: "user",
                     content:
                         `Given a user prompt for a SOL transfer, extract the following details:
-                    1. Recipient's public key/address
+                    1. Recipient's public key/address OR name (contact name or identifier)
                     2. Amount of SOL to transfer
 
                     Example prompts:
@@ -27,8 +33,9 @@ async function prepareSOLTransfer(prompt: string, publicKey: PublicKey) {
 
                     Respond ONLY with a JSON object containing:
                     {
-                        "recipientAddress": "<solana public key>",
-                        "amount": <number of SOL>
+                        "recipientAddress": "<solana public key>", (null if not provided or contact name is provided)
+                        "amount": <number of SOL>,
+                        "contact": "<contact name>", (null if not provided)
                     }
 
                     If the prompt is unclear or missing critical information, return null.`,
@@ -44,30 +51,33 @@ async function prepareSOLTransfer(prompt: string, publicKey: PublicKey) {
             }
         }
 
-        const extractedDetails = JSON.parse(responseText);
+        const extractedDetails = JSON.parse(
+            responseText,
+        ) as SolTransferToAddressIntent;
 
         // Validate the extracted details
         if (
             !extractedDetails ||
-            !extractedDetails.recipientAddress ||
+            (!extractedDetails.recipientAddress && !extractedDetails.contact) ||
             !extractedDetails.amount
         ) {
             throw new Error("Could not extract transaction details");
         }
 
         // // Create the transaction object
-        const transaction = new Transaction().add(
-            SystemProgram.transfer({
-                fromPubkey: publicKey, // Sender's public key
-                toPubkey: new PublicKey(extractedDetails.recipientAddress),
-                lamports: extractedDetails.amount * LAMPORTS_PER_SOL,
-            }),
-        );
+        // const transaction = new Transaction().add(
+        //     SystemProgram.transfer({
+        //         fromPubkey: publicKey, // Sender's public key
+        //         toPubkey: new PublicKey(extractedDetails.recipientAddress),
+        //         lamports: extractedDetails.amount * LAMPORTS_PER_SOL,
+        //     }),
+        // );
 
         return {
-            transaction,
+            contact: extractedDetails.contact,
             recipientAddress: extractedDetails.recipientAddress,
             amount: extractedDetails.amount,
+            lamports: extractedDetails.amount * LAMPORTS_PER_SOL,
         };
     } catch (error) {
         console.error(`Error processing prompt: ${prompt}`, error);
