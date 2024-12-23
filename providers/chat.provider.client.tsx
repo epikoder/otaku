@@ -5,35 +5,30 @@ import { navigate } from "vike/client/router";
 
 export const __ChatContext__ = createContext<{
     chats: Message[];
-    laoding: boolean;
-    addChat: (message: Message) => void;
+    isTyping: boolean;
+    addChat: (message: UserMessage) => void;
     clearChat: VoidFunction;
-}>({ chats: [], addChat: () => {}, clearChat: () => {}, laoding: true });
+}>({ chats: [], addChat: () => {}, clearChat: () => {}, isTyping: false });
 
 const ChatProvider = ({ children }: { children: ReactNode }): ReactNode => {
     const [chatLog, setChatLog] = useState<Message[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isTyping, setIsTyping] = useState<boolean>(false);
     const account = useSelectedAccount();
 
-    const addChat = async (message: Message) => {
-        setChatLog((prev) => prev.concat(message));
-        setIsLoading(true);
-        GetIntentFromPrompt(message.messaage).then((systemMessage) => {
-            new Promise(() =>
-                setTimeout(() =>
-                    setIsLoading((prev) => {
-                        console.log(prev);
-                        return false;
-                    }), 500)
-            );
-            setChatLog((prev) =>
-                prev.concat({
-                    messaage: systemMessage.reply,
+    const addChat = async (message: UserMessage) => {
+        setChatLog((prev) => [...prev, message]);
+
+        setIsTyping(true);
+        GetIntentFromPrompt(message.messaage).then(
+            (systemMessage: SystemMessage) => {
+                setIsTyping(false);
+                setChatLog((prev) => [...prev, {
+                    reply: systemMessage.reply,
                     sender: "system",
-                    intent: [systemMessage.intent],
-                })
-            );
-        });
+                    intent: systemMessage.intent,
+                }]);
+            },
+        );
     };
 
     const clearChat = () => {
@@ -44,7 +39,7 @@ const ChatProvider = ({ children }: { children: ReactNode }): ReactNode => {
     return (
         <__ChatContext__.Provider
             value={{
-                laoding: isLoading,
+                isTyping: isTyping,
                 chats: chatLog,
                 addChat,
                 clearChat,

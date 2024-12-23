@@ -1,36 +1,45 @@
-type Intent = SwapIntent | OpenIntent;
+type Intent =
+    | SwapIntent
+    | TransferIntent
+    | TokenIntent
+    | JournalIntent
+    | SelectContactIntent
+    | AuthIntent;
 
 interface SwapIntent {
-    action: "swap";
-    token: string;
-    amount: number;
-    price?: number;
-    text: string;
+    intent: "swap";
+    coint_a: string;
+    coint_b: string;
+    coin_a_amount: number;
+    coin_b_amount: number;
 }
 
-interface OpenIntent {
-    action: "open";
-    url: string;
-    text: string;
-}
-
-interface SendIntent {
-    action: "send";
+interface TransferIntent {
+    intent: "transfer";
     token: string;
     amount: number;
-    reciever: string;
-    text: string;
+    contact: string | null;
+    address: string | null;
+}
+
+interface SelectContactIntent {
+    intent: "transfer:select_contact";
+}
+
+interface TokenIntent {
+    intent: "token";
+    token: string;
+    amount?: number;
 }
 
 interface JournalIntent {
-    action: "journal";
+    intent: "journal";
     token: string;
-    amount: number;
     price?: number;
+    amount: number;
     profit?: number;
 }
 
-// interface CommandIntent {
-//     action: "command";
-//     type: "journal" | "send";
-// }
+interface AuthIntent {
+    intent: "login_intent";
+}

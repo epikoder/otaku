@@ -5,7 +5,11 @@ export default {
     "pages/**/*.{tsx,ts}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      backgroundColor: {
+        inherit: "inherit",
+      },
+    },
   },
   plugins: [],
 };

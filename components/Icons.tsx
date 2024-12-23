@@ -1,3 +1,5 @@
+import { HTMLAttributes } from "react";
+
 export function MessageAdd(
     { ...props }: React.SVGProps<SVGSVGElement>,
 ) {
@@ -120,28 +122,64 @@ export function SendIcon(
     );
 }
 
-export function ActivityIndicator(
-    { className, active, ...props }: React.SVGProps<SVGSVGElement> & {
-        active?: boolean;
-    },
+export function Stories(
+    { ...props }: React.SVGProps<SVGSVGElement>,
 ) {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
+            height="24px"
+            viewBox="0 -960 960 960"
+            width="24px"
+            fill="#e8eaed"
             stroke="currentColor"
+            className="size-5"
             {...props}
-            className={`${"size-5" ?? className} ${
-                active ? "animate-spin" : ""
-            }`}
         >
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
-            />
+            <path d="M680-160v-640q33 0 56.5 23.5T760-720v480q0 33-23.5 56.5T680-160ZM160-80q-33 0-56.5-23.5T80-160v-640q0-33 23.5-56.5T160-880h360q33 0 56.5 23.5T600-800v640q0 33-23.5 56.5T520-80H160Zm680-160v-480q25 0 42.5 17.5T900-660v360q0 25-17.5 42.5T840-240Zm-680 80h360v-640H160v640Zm0-640v640-640Z" />
         </svg>
+    );
+}
+
+export function ChartLog(
+    { ...props }: React.SVGProps<SVGSVGElement>,
+) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 -960 960 960"
+            width="24px"
+            fill="#ADADAD"
+            stroke="currentColor"
+            className="size-5"
+            {...props}
+        >
+            <path d="m105-399-65-47 200-320 120 140 160-260 120 180 135-214 65 47-198 314-119-179-152 247-121-141-145 233Zm475 159q42 0 71-29t29-71q0-42-29-71t-71-29q-42 0-71 29t-29 71q0 42 29 71t71 29ZM784-80 676-188q-21 14-45.5 21t-50.5 7q-75 0-127.5-52.5T400-340q0-75 52.5-127.5T580-520q75 0 127.5 52.5T760-340q0 26-7 50.5T732-244l108 108-56 56Z" />
+        </svg>
+    );
+}
+
+export function ActivityIndicator(
+    { className = "size-10" }: Pick<
+        HTMLAttributes<HTMLDivElement>,
+        "className"
+    >,
+) {
+    return (
+        <div className={`spinner size-6 ${className ?? ""}`}>
+            <div className="bar1"></div>
+            <div className="bar2"></div>
+            <div className="bar3"></div>
+            <div className="bar4"></div>
+            <div className="bar5"></div>
+            <div className="bar6"></div>
+            <div className="bar7"></div>
+            <div className="bar8"></div>
+            <div className="bar9"></div>
+            <div className="bar10"></div>
+            <div className="bar11"></div>
+            <div className="bar12"></div>
+        </div>
     );
 }

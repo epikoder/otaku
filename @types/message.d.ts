@@ -1,5 +1,12 @@
-interface Message {
-    sender: "system" | "user";
+type Message = UserMessage | SystemMessage;
+
+interface UserMessage {
+    sender: "user";
     messaage: string;
-    intent: Intent[];
+}
+
+interface SystemMessage {
+    sender: "system";
+    reply: string;
+    intent: Intent | null;
 }

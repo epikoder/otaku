@@ -33,15 +33,17 @@ async function getIntent(prompt: string) {
                     - "Send 1 SOL to 7xK...(Solana address)" (token = SOL)
                     - "Transfer 0.5 SOL to Michael" (set address to null, set contact as Michael). 
                     - "Transfer 0.5 SOL to my friend's wallet (set address and contact as null, ask to choose from the 'below options on how to get his friends wallet address' from the user in <reply> only if contact was not provided)"
+                    - "Send 1 SOL to Mark" (set address to null, set contact to Mark):IMPORTANT: Do not ask for <Mark> address because a contact was specified.
 
                     Respond ONLY with a JSON object containing:
                     {   
                         "reply":"Generated reponse message",
                         "intent": {
                         "intent": "transfer", 
-                        "recipientAddress": "<solana public key>", (null if not provided or contact name is provided)
+                        "address": "<solana public key>", (null if not provided or contact name is provided)
+                        "contact": "<contact name>", (null if not provided),
+                        "token": <token>,
                         "amount": <number of token>,
-                        "contact": "<contact name>", (null if not provided)
                         }
                     }
                     
@@ -102,13 +104,25 @@ async function getIntent(prompt: string) {
                         "intent": {
                         "intent": "token", 
                         "amount": <number of token>,
-                        "symbol": "<token symbol>",
+                        "token": "<token symbol>",
                         }
                     }
                     
-                    For the prompt: "${prompt}"
+                    CASE 4:
+                    Given a user prompt with no context example
+                    1. Yo
+                    2. I dont'k know
+                    3. How you doing
 
-                    IMPORTANT: Respond ONLY with a JSON object;
+                    Respond ONLY with a JSON object containing:
+                    {   
+                        "reply":"Generated reponse message",
+                        "intent": null
+                    }
+
+                    For the prompt: "${prompt.trim()}"
+
+                    IMPORTANT: Respond ONLY with a JSON object AND NOTHING ELSE;
                     If the prompt is unclear or missing critical information, return meaningful null.`,
                 },
             ],
