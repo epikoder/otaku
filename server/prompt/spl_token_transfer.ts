@@ -97,7 +97,7 @@ async function getTokenDecimals(
  * @param account Public key to check
  * @returns Boolean indicating if account exists and is initialized
  */
-async function accountExists(
+export async function accountExists(
     connection: Connection,
     account: PublicKey,
 ): Promise<boolean> {

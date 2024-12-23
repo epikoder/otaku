@@ -1,6 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 import { prepareTokenTransfer } from "./spl_token_transfer";
-import { test } from "bun:test";
+import { expect, test } from "bun:test";
 
 test("test_spl_token_tranfer", async () => {
     const senderPublicKey = new PublicKey(
@@ -13,6 +13,11 @@ test("test_spl_token_tranfer", async () => {
         prompt,
         senderPublicKey,
     );
-    console.log("Transaction prepared:", details);
-    console.log("Transaction object:", transaction);
+    
+    expect(details.amount).toEqual(100);
+    expect(
+        transaction.signatures.map((key) => key.publicKey).includes(
+            senderPublicKey,
+        ),
+    );
 });

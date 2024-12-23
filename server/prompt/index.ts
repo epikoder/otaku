@@ -1,6 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { Connection } from "@solana/web3.js";
-import { prepareTokenTransfer } from "./spl_token_transfer";
+import { Connection, PublicKey } from "@solana/web3.js";
+import {
+    accountExists as _accountExists,
+    prepareTokenTransfer,
+} from "./spl_token_transfer";
 import { prepareSOLTransfer } from "./sol_transfer";
 
 export const anthropic = new Anthropic({ apiKey: Bun.env.ANTHROPIC_API_KEY });
@@ -24,5 +27,8 @@ export function parseJSONOrObject(input: any) {
 
     return null;
 }
+
+export const accountExists = async (address: PublicKey) =>
+    await _accountExists(connection, address);
 
 export { prepareSOLTransfer, prepareTokenTransfer };

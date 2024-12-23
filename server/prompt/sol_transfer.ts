@@ -1,8 +1,8 @@
 import {
+    LAMPORTS_PER_SOL,
+    PublicKey,
     SystemProgram,
     Transaction,
-    PublicKey,
-    LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
 import { anthropic } from ".";
 
@@ -14,7 +14,8 @@ async function prepareSOLTransfer(prompt: string, publicKey: PublicKey) {
             messages: [
                 {
                     role: "user",
-                    content: `Given a user prompt for a SOL transfer, extract the following details:
+                    content:
+                        `Given a user prompt for a SOL transfer, extract the following details:
                     1. Recipient's public key/address
                     2. Amount of SOL to transfer
 
@@ -60,7 +61,7 @@ async function prepareSOLTransfer(prompt: string, publicKey: PublicKey) {
                 fromPubkey: publicKey, // Sender's public key
                 toPubkey: new PublicKey(extractedDetails.recipientAddress),
                 lamports: extractedDetails.amount * LAMPORTS_PER_SOL,
-            })
+            }),
         );
 
         return {
@@ -73,10 +74,5 @@ async function prepareSOLTransfer(prompt: string, publicKey: PublicKey) {
         throw error;
     }
 }
-
-// for await (const chunk of stream) {
-//     process.stdout.write(chunk.choices[0]?.delta?.content || "");
-// }
-
 
 export { prepareSOLTransfer };
