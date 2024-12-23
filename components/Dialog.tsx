@@ -21,12 +21,16 @@ export const showAlertDialog = ({
   title,
   message,
   onCancel,
+  onCancelText,
+  onContinueText,
   onContinue,
 }: {
   title: ReactNode;
   message: ReactNode;
   onContinue: VoidFunction;
+  onContinueText?: string;
   onCancel?: VoidFunction;
+  onCancelText?: string;
 }) => {
   const container = document.createElement("div");
   const closeFn = (el: HTMLDivElement) => el.remove();
@@ -37,33 +41,33 @@ export const showAlertDialog = ({
       {({ closeFn }) => (
         <Fragment>
           <div className={"px-4 py-2 font-semibold"}>{title}</div>
-          <div className={"px-4 py-2 text-sm overflow-y-scroll h-full max-h-[80vh]"}>{message}</div>
+          <div
+            className={"px-4 py-2 text-sm overflow-y-scroll h-full max-h-[80vh]"}
+          >
+            {message}
+          </div>
           <div className={"grid grid-cols-2 text-sm"}>
             <button
-              className={
-                "text-center py-1 bg-red-500 text-white w-full rounded-bl-lg"
-              }
+              className={"text-center py-1 bg-red-500 text-white w-full rounded-bl-lg"}
               onClick={() => {
                 onCancel && onCancel();
                 closeFn();
               }}
             >
-              Cancel
+              {onCancelText ?? "Cancel"}
             </button>
             <button
-              className={
-                "text-center py-1 bg-green-500 text-white w-full rounded-br-lg"
-              }
+              className={"text-center py-1 bg-green-500 text-white w-full rounded-br-lg"}
               onClick={async () => {
                 try {
                   await onContinue();
                   closeFn();
                 } catch (_) {
-                  console.debug("Dialog",_);
+                  console.debug("Dialog", _);
                 }
               }}
             >
-              Continue
+              {onContinueText ?? "Continue"}
             </button>
           </div>
         </Fragment>
@@ -88,21 +92,18 @@ export default function Dialog({
   const __container_ref = useRef<HTMLDivElement>(null);
   const __ref = useRef<HTMLDivElement>(null);
 
-  children =
-    typeof children == "function"
-      ? children({
-          closeFn: () => {
-            __container_ref.current?.parentElement?.remove();
-          },
-        })
-      : children;
+  children = typeof children == "function"
+    ? children({
+      closeFn: () => {
+        __container_ref.current?.parentElement?.remove();
+      },
+    })
+    : children;
 
   return (
     <div
       ref={__container_ref}
-      className={
-        "fixed z-[99] inset-0 w-[100vw] h-[100vh] bg-gray-200 bg-opacity-10 backdrop-blur-[1px] flex flex-col justify-center items-center"
-      }
+      className={"fixed z-[99] inset-0 w-[100vw] h-[100vh] bg-gray-200 bg-opacity-10 backdrop-blur-[1px] flex flex-col justify-center items-center"}
       onClick={(ev) => {
         ev.stopPropagation();
         closeFn(ev.currentTarget.parentElement! as HTMLDivElement);
@@ -116,7 +117,7 @@ export default function Dialog({
       >
         <div
           ref={__ref}
-          className={"rounded-lg shadow-md bg-inherit bg-opacity-100 w-full"}
+          className={"rounded-lg shadow-md bg-[#1E1E1E] text-zinc-100 bg-opacity-100 w-full"}
         >
           {children}
         </div>

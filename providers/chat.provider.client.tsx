@@ -6,9 +6,16 @@ import { navigate } from "vike/client/router";
 export const __ChatContext__ = createContext<{
     chats: Message[];
     isTyping: boolean;
-    addChat: (message: UserMessage) => void;
+    addMessage: (message: UserMessage) => void;
+    addSystemMessage: (message: SystemMessage) => void;
     clearChat: VoidFunction;
-}>({ chats: [], addChat: () => {}, clearChat: () => {}, isTyping: false });
+}>({
+    chats: [],
+    addMessage: () => {},
+    addSystemMessage: () => {},
+    clearChat: () => {},
+    isTyping: false,
+});
 
 const ChatProvider = ({ children }: { children: ReactNode }): ReactNode => {
     const [chatLog, setChatLog] = useState<Message[]>([]);
@@ -41,8 +48,10 @@ const ChatProvider = ({ children }: { children: ReactNode }): ReactNode => {
             value={{
                 isTyping: isTyping,
                 chats: chatLog,
-                addChat,
+                addMessage: addChat,
                 clearChat,
+                addSystemMessage: (systemMessage) =>
+                    setChatLog((prev) => [...prev, systemMessage]),
             }}
         >
             {children}

@@ -9,7 +9,7 @@ const PromptInput = () => {
     const ref = useRef<HTMLTextAreaElement>(null);
     const sendPrompt = async (text: string) => {
         if (text.trim().length == 0) return;
-        chatcontext.addChat({
+        chatcontext.addMessage({
             messaage: text,
             sender: "user",
         });
