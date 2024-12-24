@@ -4,12 +4,24 @@ import { createRoot } from "react-dom/client";
 export const showDialog = (
   dialog: ({ closeFn }: { closeFn: VoidFunction }) => ReactNode,
   useWidth = true,
+  id?: string,
+  onClose?: () => void,
 ) => {
   const container = document.createElement("div");
+  if (id) {
+    document.getElementById(id)?.remove();
+    container.id = id;
+  }
 
   const root = createRoot(container);
   root.render(
-    <Dialog closeFn={(el) => el.remove()} useWidth={useWidth}>
+    <Dialog
+      closeFn={(el) => {
+        el.remove();
+        onClose && onClose();
+      }}
+      useWidth={useWidth}
+    >
       {dialog}
     </Dialog>,
   );

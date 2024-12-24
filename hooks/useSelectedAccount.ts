@@ -1,6 +1,6 @@
-import { useWeb3React } from "@web3-react/core";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 export default function useSelectedAccount() {
-    const { connector, hooks } = useWeb3React();
-    return hooks.useSelectedAccount(connector);
+    const { publicKey } = useWallet();
+    return publicKey;
 }

@@ -8,7 +8,12 @@
     "dependencies": {
         "@anthropic-ai/sdk": "^0.33.1",
         "@elysiajs/static": "^1.1.2",
+        "@heroicons/react": "^2.2.0",
         "@solana/spl-token": "^0.4.9",
+        "@solana/wallet-adapter-base": "^0.9.23",
+        "@solana/wallet-adapter-base-ui": "^0.1.2",
+        "@solana/wallet-adapter-react": "^0.15.35",
+        "@solana/wallet-adapter-wallets": "^0.19.32",
         "@solana/web3.js": "^1.98.0",
         "@types/bun": "^1.1.14",
         "@types/toastify-js": "^1.12.3",

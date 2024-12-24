@@ -1,16 +1,21 @@
-import { Fragment, ReactNode, useRef } from "react";
+import { Fragment, ReactNode } from "react";
 
 import { Web3ReactHooks, Web3ReactProvider } from "@web3-react/core";
 import { Connector } from "@web3-react/types";
 import logoUrl from "../assets/logo.svg";
 import { Alert, ChartLog, ClockForward, MessageAdd } from "@components/Icons";
 import connectors from "@utils/connectors";
-import PhantomWallet from "@components/Phantom";
 import useSelectedAccount from "@hooks/useSelectedAccount";
 import ChatProvider, {
     __ChatContext__,
 } from "../providers/chat.provider.client";
 import ContactProvider from "../providers/contact.provider.client";
+import { WalletProvider } from "@solana/wallet-adapter-react";
+import {
+    PhantomWalletAdapter,
+    TrustWalletAdapter,
+} from "@solana/wallet-adapter-wallets";
+import WalletConnect from "@components/WallectConnect";
 
 export default function ({ children }: { children: ReactNode }) {
     const connections: [Connector, Web3ReactHooks][] = connectors.map((
@@ -18,36 +23,43 @@ export default function ({ children }: { children: ReactNode }) {
     ) => [connector, hooks]);
 
     return (
-        <Web3ReactProvider connectors={connections}>
-            <ContactProvider>
-                <ChatProvider>
-                    <div className="max-w-screen-xl w-full p-4 mx-auto flex flex-col gap-3">
-                        <nav className="flex justify-between items-center">
-                            <a href="/">
-                                <img src={logoUrl} className="max-h-14" />
-                            </a>
-                            <div className="flex gap-4 items-center">
-                                <PhantomWallet />
-                                <NewChat />
-                                <ChatHistory />
-                                <TradeLog />
-                            </div>
-                        </nav>
-                        <Fragment>
-                            {children}
-                        </Fragment>
-                        <footer className="h-12 flex gap-3 items-center justify-center text-xs">
-                            <Alert />
-                            <p className="text-[#A1A1A1]">
-                                Otaku’s Sensei could sometimes make
-                                misprediction and errors, please check important
-                                info and do proper research.
-                            </p>
-                        </footer>
-                    </div>
-                </ChatProvider>
-            </ContactProvider>
-        </Web3ReactProvider>
+        <WalletProvider
+            wallets={[
+                new PhantomWalletAdapter(),
+                new TrustWalletAdapter(),
+            ]}
+        >
+            <Web3ReactProvider connectors={connections}>
+                <ContactProvider>
+                    <ChatProvider>
+                        <div className="max-w-screen-xl w-full p-4 mx-auto flex flex-col gap-3">
+                            <nav className="flex justify-between items-center">
+                                <a href="/">
+                                    <img src={logoUrl} className="max-h-14" />
+                                </a>
+                                <div className="flex gap-4 items-center">
+                                    <WalletConnect />
+                                    <NewChat />
+                                    <ChatHistory />
+                                    <TradeLog />
+                                </div>
+                            </nav>
+                            <Fragment>
+                                {children}
+                            </Fragment>
+                            <footer className="h-12 flex gap-3 items-center justify-center text-xs">
+                                <Alert />
+                                <p className="text-[#A1A1A1]">
+                                    Otaku’s Sensei could sometimes make
+                                    misprediction and errors, please check
+                                    important info and do proper research.
+                                </p>
+                            </footer>
+                        </div>
+                    </ChatProvider>
+                </ContactProvider>
+            </Web3ReactProvider>
+        </WalletProvider>
     );
 }
 

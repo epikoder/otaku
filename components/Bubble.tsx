@@ -17,16 +17,12 @@ import {
     Transaction,
 } from "@solana/web3.js";
 import useSelectedAccount from "@hooks/useSelectedAccount";
-import { connection, swapToken } from "@utils/web3";
-import useSelectedProvider from "@hooks/useSelectedProvider";
-import { Phantom } from "web3-react-phantom";
-import PhantomWallet from "./Phantom";
-import Toast from "@utils/toast";
+import { swapToken, transferToken } from "@utils/web3";
 import { __ChatContext__ } from "../providers/chat.provider.client";
+import WalletConnect from "./WallectConnect";
 
 export const SystemBubble = (message: SystemMessage) => {
     const account = useSelectedAccount();
-    const provider = useSelectedProvider();
     const chatContext = useContext(__ChatContext__);
 
     const { contact } = useContext(__ContactContext__);
@@ -40,22 +36,6 @@ export const SystemBubble = (message: SystemMessage) => {
     };
 
     const contactInputRef = useRef<HTMLInputElement>(null);
-
-    const transferTokenToAddress = (intent: TransferIntent) => {
-        console.log(intent);
-        const pubKey = new PublicKey(intent.address!);
-        console.log(pubKey, account);
-        const transfer = SystemProgram.transfer({
-            fromPubkey: new PublicKey(account!),
-            toPubkey: new PublicKey(intent.address!),
-            lamports: intent.amount * LAMPORTS_PER_SOL,
-        });
-
-        const transaction = new Transaction().add(transfer);
-        console.log(transaction);
-        const signer = provider!.getSigner();
-        console.log(signer);
-    };
 
     const handleContactSelect = (address: string) => {
         showAlertDialog({
@@ -110,7 +90,7 @@ export const SystemBubble = (message: SystemMessage) => {
             case "login_intent":
                 return (
                     <>
-                        <PhantomWallet />
+                        <WalletConnect />
                     </>
                 );
             case "transfer:select_contact":
@@ -205,7 +185,7 @@ export const SystemBubble = (message: SystemMessage) => {
                 return (
                     <button
                         className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md"
-                        onClick={() => transferTokenToAddress(intent)}
+                        onClick={() => transferToken(intent, account!)}
                     >
                         Execute {intent.intent}
                     </button>
@@ -214,7 +194,7 @@ export const SystemBubble = (message: SystemMessage) => {
                 return (
                     <button
                         className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md"
-                        onClick={() => swapToken(intent, account!, provider!)}
+                        onClick={() => swapToken(intent, account!)}
                     >
                         Swap {intent.intent}
                     </button>

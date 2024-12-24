@@ -30,12 +30,12 @@ export const accountExists = async (address: PublicKey) =>
 
 export const swapToken = async (
     intent: SwapIntent,
-    account: string,
-    provider: Provider,
+    account: PublicKey,
+    // provider: Provider,
 ) => {};
 
 export const transferToken = async (
     intent: TransferIntent,
-    account: string,
-    provider: Provider,
+    account: PublicKey,
+    // provider: Provider,
 ) => {};
