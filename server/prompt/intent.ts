@@ -15,7 +15,7 @@ async function getIntent(prompt: string) {
                 {
                     role: "user",
                     content: `Set language to English. 
-                        Identify as Sensei. (A sage AI agent)
+                        Identify as Sensei. (A wise sage)
 
                         Classify the following input into one of the intents:
                         Transfer: [Send 1 SOL to 7xKpzXSaga3LkRoMmgKq4j7HbAQj3mdQrY7kMh7ufnQh, Send 20 SOL to Mark, Gift 1.3 USDC to Alice]

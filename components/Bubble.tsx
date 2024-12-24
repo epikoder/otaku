@@ -10,16 +10,80 @@ import {
 import Markdown from "react-markdown";
 import { showAlertDialog, showDialog } from "./Dialog";
 import { SendIcon } from "./Icons";
-import {
-    LAMPORTS_PER_SOL,
-    PublicKey,
-    SystemProgram,
-    Transaction,
-} from "@solana/web3.js";
 import useSelectedAccount from "@hooks/useSelectedAccount";
 import { swapToken, transferToken } from "@utils/web3";
 import { __ChatContext__ } from "../providers/chat.provider.client";
 import WalletConnect from "./WallectConnect";
+import { PublicKey } from "@solana/web3.js";
+
+// Prepare intent
+const prepareIntent = (
+    intent: Intent,
+    account: PublicKey | null,
+    contact: Record<string, string>,
+    reply: (message: SystemMessage) => void,
+): Intent[] => {
+    switch (intent.intent) {
+        case "transfer": {
+            if (!account) {
+                return [{ intent: "login_intent" }];
+            }
+            if (!intent.address) {
+                if (intent.contact) {
+                    let address = contact[intent.contact];
+                    if (!address) {
+                        return [{ intent: "transfer:select_contact" }];
+                    }
+                    intent.address = address;
+                }
+                if (!intent.address) {
+                    reply({
+                        reply:
+                            `Sorry, I'm unable to process your request due to missing fields`,
+                        sender: "system",
+                        intent: null,
+                    });
+                    return [];
+                }
+            }
+            return [intent];
+        }
+        case "swap": {
+            if (!account) {
+                return [{ intent: "login_intent" }];
+            }
+            if (!intent.coint_a || !intent.coint_b) {
+                reply({
+                    reply:
+                        "Please specify a Token to swap with: \n Example: Swap 3.5 SOL for USDC",
+                    sender: "system",
+                    intent: null,
+                });
+                return [];
+            }
+
+            if (intent.coin_a_amount == 0 && intent.coin_b_amount == 0) {
+                reply({
+                    reply: `Yo! what magic are you trying to perform?`,
+                    sender: "system",
+                    intent: null,
+                });
+                return [];
+            }
+            return [intent];
+        }
+        case "token":
+            if (!account) {
+                return [{ intent: "login_intent" }];
+            }
+        case "journal":
+            if (!account) {
+                return [{ intent: "login_intent" }];
+            }
+        default:
+            return [];
+    }
+};
 
 export const SystemBubble = (message: SystemMessage) => {
     const account = useSelectedAccount();
@@ -28,7 +92,14 @@ export const SystemBubble = (message: SystemMessage) => {
     const { contact } = useContext(__ContactContext__);
     const [str, setStr] = useState("");
     const [intents, setIntents] = useState(
-        message.intent ? [message.intent] : [],
+        message.intent
+            ? prepareIntent(
+                message.intent,
+                account,
+                contact,
+                chatContext.addSystemMessage,
+            )
+            : [],
     );
 
     const renderText = async () => {
@@ -37,7 +108,8 @@ export const SystemBubble = (message: SystemMessage) => {
 
     const contactInputRef = useRef<HTMLInputElement>(null);
 
-    const handleContactSelect = (address: string) => {
+    // select contact from contact list
+    const onContactSelect = (address: string) => {
         showAlertDialog({
             title: (
                 <span className="text-white">
@@ -85,7 +157,7 @@ export const SystemBubble = (message: SystemMessage) => {
         });
     };
 
-    const handleIntent = (intent: Intent): ReactNode => {
+    const renderIntent = (intent: Intent): ReactNode => {
         switch (intent.intent) {
             case "login_intent":
                 return (
@@ -122,7 +194,7 @@ export const SystemBubble = (message: SystemMessage) => {
                                                                 return;
                                                             }
                                                             closeFn();
-                                                            handleContactSelect(
+                                                            onContactSelect(
                                                                 address,
                                                             );
                                                         }
@@ -137,7 +209,7 @@ export const SystemBubble = (message: SystemMessage) => {
                                                                 .value;
                                                         if (!address) return;
                                                         closeFn();
-                                                        handleContactSelect(
+                                                        onContactSelect(
                                                             address,
                                                         );
                                                     }}
@@ -210,79 +282,6 @@ export const SystemBubble = (message: SystemMessage) => {
         renderText();
     }, []);
 
-    // Prepare intent
-    const prepareIntent = (intent: Intent) => {
-        switch (intent.intent) {
-            case "transfer": {
-                if (!account) {
-                    return setIntents([{ intent: "login_intent" }]);
-                }
-                if (!intent.address) {
-                    if (intent.contact) {
-                        let address = contact[intent.contact];
-                        if (!address) {
-                            setIntents([{ intent: "transfer:select_contact" }]);
-                            return;
-                        }
-                        intent.address = address;
-                    }
-                    if (!intent.address) {
-                        setIntents([]);
-                        chatContext.addSystemMessage({
-                            reply:
-                                `Sorry, I'm unable to process your request due to missing fields`,
-                            sender: "system",
-                            intent: null,
-                        });
-                        return;
-                    }
-                }
-                setIntents([intent]);
-                break;
-            }
-            case "swap": {
-                if (!account) {
-                    return setIntents([{ intent: "login_intent" }]);
-                }
-                if (!intent.coint_a || !intent.coint_b) {
-                    chatContext.addSystemMessage({
-                        reply:
-                            "Please specify a Token to swap with: \n Example: Swap 3.5 SOL for USDC",
-                        sender: "system",
-                        intent: null,
-                    });
-                    return;
-                }
-
-                if (intent.coin_a_amount == 0 && intent.coin_b_amount == 0) {
-                    chatContext.addSystemMessage({
-                        reply: `Yo! what magic are you trying to perform?`,
-                        sender: "system",
-                        intent: null,
-                    });
-                    return;
-                }
-                setIntents([intent]);
-                break;
-            }
-            case "token":
-                if (!account) {
-                    return setIntents([{ intent: "login_intent" }]);
-                }
-            case "journal":
-                if (!account) {
-                    return setIntents([{ intent: "login_intent" }]);
-                }
-            default:
-                break;
-        }
-    };
-    useEffect(() => {
-        if (!message.intent) return;
-        prepareIntent(message.intent);
-    }, [account]);
-
-    console.log(intents);
     return (
         <div>
             <div className="w-fit max-w-[60%] mr-auto bg-[#292929] p-4 rounded-t-2xl rounded-r-2xl">
@@ -292,7 +291,7 @@ export const SystemBubble = (message: SystemMessage) => {
                 <div className="flex flex-wrap gap-3 py-2">
                     {intents.map((intent, idx) => (
                         <Fragment key={idx}>
-                            {handleIntent(intent)}
+                            {renderIntent(intent)}
                         </Fragment>
                     ))}
                 </div>
