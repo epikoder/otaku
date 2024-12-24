@@ -2,13 +2,14 @@ import { SystemBubble } from "@components/Bubble";
 import { __ContactContext__ } from "../../providers/contact.provider.client";
 import { useContext } from "react";
 import { Fragment } from "react/jsx-runtime";
+import ChatProvider from "providers/chat.provider.client";
 
 // Test your components here href: /test
 export default function () {
     const contact = useContext(__ContactContext__);
     contact.contact["Alice"] = "7xKpzXSaga3LkRoMmgKq4j7HbAQj3mdQrY7kMh7ufnQh";
     return (
-        <Fragment>
+        <ChatProvider>
             <SystemBubble
                 {...{
                     intent: {
@@ -74,6 +75,6 @@ export default function () {
                     sender: "system",
                 }}
             />
-        </Fragment>
+        </ChatProvider>
     );
 }

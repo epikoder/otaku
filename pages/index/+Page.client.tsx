@@ -4,7 +4,9 @@ import { useContext, useEffect, useRef } from "react";
 import { SystemBubble, UserBubble } from "@components/Bubble";
 import { GetChatHistory } from "../../utils/get_chat_history";
 import useSelectedAccount from "@hooks/useSelectedAccount";
-import { __ChatContext__ } from "../../providers/chat.provider.client";
+import ChatProvider, {
+  __ChatContext__,
+} from "../../providers/chat.provider.client";
 import PromptInput from "@components/PromptInput";
 
 export default function () {
@@ -16,15 +18,17 @@ export default function () {
 
   useEffect(() => {
     if (account) {
-      _load_chat_history(account);
+      _load_chat_history(account.toString());
     }
   }, [account]);
 
   return (
-    <div className="flex flex-col justify-between h-[calc(100vh-160px)]">
-      <MessagesComponent />
-      <PromptInput />
-    </div>
+    <ChatProvider>
+      <div className="flex flex-col justify-between h-[calc(100vh-160px)]">
+        <MessagesComponent />
+        <PromptInput />
+      </div>
+    </ChatProvider>
   );
 }
 
