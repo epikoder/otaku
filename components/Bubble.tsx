@@ -15,6 +15,7 @@ import { swapToken, transferToken } from "@utils/web3";
 import { __ChatContext__ } from "../providers/chat.provider.client";
 import WalletConnect from "./WallectConnect";
 import { PublicKey } from "@solana/web3.js";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 // Prepare intent
 const prepareIntent = (
@@ -86,7 +87,7 @@ const prepareIntent = (
 };
 
 export const SystemBubble = (message: SystemMessage) => {
-    const account = useSelectedAccount();
+    const { publicKey: account } = useWallet();
     const chatContext = useContext(__ChatContext__);
 
     const { contact } = useContext(__ContactContext__);
@@ -281,6 +282,17 @@ export const SystemBubble = (message: SystemMessage) => {
     useEffect(() => {
         renderText();
     }, []);
+
+    useEffect(() => {
+        if (account && message.intent) {
+            setIntents(prepareIntent(
+                message.intent,
+                account,
+                contact,
+                chatContext.addSystemMessage,
+            ));
+        }
+    }, [account]);
 
     return (
         <div>
