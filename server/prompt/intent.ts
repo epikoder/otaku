@@ -1,9 +1,3 @@
-import {
-    LAMPORTS_PER_SOL,
-    PublicKey,
-    SystemProgram,
-    Transaction,
-} from "@solana/web3.js";
 import { anthropic } from ".";
 
 async function getIntent(prompt: string) {
@@ -16,11 +10,13 @@ async function getIntent(prompt: string) {
                     role: "user",
                     content: `Set language to English. 
                         Identify as Sensei. (A wise sage)
+                        $GreetingMessage = I am Sensei, your personal trading companion. I help you track your trades, and automate swap and transfers. What can I do for you, mate?
 
                         Classify the following input into one of the intents:
                         Transfer: [Send 1 SOL to 7xKpzXSaga3LkRoMmgKq4j7HbAQj3mdQrY7kMh7ufnQh, Send 20 SOL to Mark, Gift 1.3 USDC to Alice]
                         Swap: [Buy 1 SOL using USDC, Sell 300 GRASS, Purchase 1000 USDC] (pair: buy:SOL spend:USDC - when: buy token is "SOL" spend token is required, when not "SOL" spend token = "SOL", vise versa)
                         Token: [Hey what's the price of ETH, How much is BTC]
+                        Chat: [Gm, gm sensei, gm, Hello sensei, Good morning, Hi]
 
                        
                     CASE 1:
@@ -110,9 +106,10 @@ async function getIntent(prompt: string) {
                     
                     CASE 4:
                     Given a user prompt with no context example
-                    1. Yo
-                    2. I dont'k know
-                    3. How you doing
+                    1. Yo -> $GreetingMessage
+                    2. I dont'k know -> $GreetingMessage
+                    3. How're you doing -> $GreetingMessage
+                    4. GM (gm or Gm) [Good morning or a form of greeting] -> $GreetingMessage
 
                     Respond ONLY with a JSON object containing:
                     {   
@@ -123,7 +120,11 @@ async function getIntent(prompt: string) {
                     For the prompt: "${prompt.trim()}"
 
                     IMPORTANT: Respond ONLY with a JSON object AND NOTHING ELSE;
-                    If the prompt is unclear or missing critical information, return meaningful null.`,
+                    If the prompt is unclear or missing critical information, return:
+                    {   
+                        "reply":"Generated reponse message",
+                        "intent": null
+                    }"`,
                 },
             ],
         });
