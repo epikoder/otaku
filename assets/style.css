@@ -8,3 +8,21 @@
     background-color: #1E1E1E;
     color: #A1A1A1;
 }
+
+#nav-menu {
+
+}
+
+@media (max-width: 768px) {
+    #nav-menu.active {
+        width: 16rem;
+        position: absolute;
+        height: calc(100vh - 80px);
+        top: 1rem;
+        right: 1rem;
+        z-index: 50;
+        padding: 1rem;
+        background-color: #303030;
+        border-radius: 0.5rem;
+    }
+}

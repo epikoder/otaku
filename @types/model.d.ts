@@ -1,0 +1,5 @@
+interface Journal {
+
+}
+
+interface Chat {}
