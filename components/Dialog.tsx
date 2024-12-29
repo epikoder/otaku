@@ -6,7 +6,7 @@ export const showDialog = (
   dialog: ({ closeFn }: { closeFn: VoidFunction }) => ReactNode,
   useWidth = true,
   id?: string,
-  onClose?: () => void
+  onClose?: () => void,
 ) => {
   const container = document.createElement("div");
   if (id) {
@@ -19,16 +19,75 @@ export const showDialog = (
     <Dialog
       closeFn={(el) => {
         root.unmount(); // Ensure React unmounts the dialog
-        el.remove();    // Remove the container element
+        el.remove(); // Remove the container element
         onClose && onClose();
       }}
       useWidth={useWidth}
     >
       {dialog}
-    </Dialog>
+    </Dialog>,
   );
-  
 
+  document.body.append(container);
+};
+
+export const showAlertDialog = ({
+  title,
+  message,
+  onCancel,
+  onCancelText,
+  onContinueText,
+  onContinue,
+}: {
+  title: ReactNode;
+  message: ReactNode;
+  onContinue: VoidFunction;
+  onContinueText?: string;
+  onCancel?: VoidFunction;
+  onCancelText?: string;
+}) => {
+  const container = document.createElement("div");
+  const closeFn = (el: HTMLDivElement) => el.remove();
+
+  const root = createRoot(container);
+  root.render(
+    <Dialog closeFn={closeFn}>
+      {({ closeFn }) => (
+        <Fragment>
+          <div className={"px-4 py-2 font-semibold"}>{title}</div>
+          <div
+            className={"px-4 py-2 text-sm overflow-y-scroll h-full max-h-[80vh]"}
+          >
+            {message}
+          </div>
+          <div className={"grid grid-cols-2 text-sm"}>
+            <button
+              className={"text-center py-1 bg-red-500 text-white w-full rounded-bl-lg"}
+              onClick={() => {
+                onCancel && onCancel();
+                closeFn();
+              }}
+            >
+              {onCancelText ?? "Cancel"}
+            </button>
+            <button
+              className={"text-center py-1 bg-green-500 text-white w-full rounded-br-lg"}
+              onClick={async () => {
+                try {
+                  await onContinue();
+                  closeFn();
+                } catch (_) {
+                  console.debug("Dialog", _);
+                }
+              }}
+            >
+              {onContinueText ?? "Continue"}
+            </button>
+          </div>
+        </Fragment>
+      )}
+    </Dialog>,
+  );
   document.body.append(container);
 };
 
@@ -53,8 +112,7 @@ export default function Dialog({
         const parent = __container_ref.current?.parentElement;
         if (parent) parent.remove();
       },
-      
-      })
+    })
     : children;
 
   return (
@@ -101,12 +159,11 @@ export const JournalDialog: React.FC<JournalDialogProps> = ({
   initialData,
 }) => {
   const [formData, setFormData] = useState<Partial<JournalIntent>>({
-
-    intent: "journal", 
+    intent: "journal",
     token: initialData?.token ?? "",
-    price: initialData?.price, 
-    amount: initialData?.amount ?? 0, 
-    profit: initialData?.profit,  
+    price: initialData?.price,
+    amount: initialData?.amount ?? 0,
+    profit: initialData?.profit,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,14 +194,17 @@ export const JournalDialog: React.FC<JournalDialogProps> = ({
 
       <div className="flex justify-between mt-4">
         <button
-        className="bg-green-500 text-white px-4 py-2 rounded" onClick={() => {
-        if (!formData.token || !formData.amount) {
-        alert("Token and Amount are required!"); 
-    }
-        onSubmit(formData); closeFn();
-       }}>
-      {initialData ? "Save Changes" : "Add Entry"}
-       </button>
+          className="bg-green-500 text-white px-4 py-2 rounded"
+          onClick={() => {
+            if (!formData.token || !formData.amount) {
+              alert("Token and Amount are required!");
+            }
+            onSubmit(formData);
+            closeFn();
+          }}
+        >
+          {initialData ? "Save Changes" : "Add Entry"}
+        </button>
 
         <button
           className="bg-red-500 text-white px-4 py-2 rounded"
@@ -172,7 +232,7 @@ export const JournalDialog: React.FC<JournalDialogProps> = ({
 export const openJournalDialog = (
   initialData?: Partial<JournalIntent>,
   onSubmit?: (data: Partial<JournalIntent>) => void,
-  onDelete?: VoidFunction
+  onDelete?: VoidFunction,
 ) => {
   showDialog(({ closeFn }) => (
     <JournalDialog
