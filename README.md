@@ -15,7 +15,7 @@ bun run dev
 ```bash
 bun run build
 
-bun run main.ts --port 9000
+bun run main.ts --port 5800 --watch
 ```
 
 #### Tests
