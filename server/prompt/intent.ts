@@ -72,6 +72,16 @@ async function getIntent(prompt: string) {
                     <token to spend>  = SOL
                     note: We are swapping 30 SOL, we spend SOL to acquire USDC 
 
+                    5: Buy $250 SOL
+                    <token to buy> = SOL 
+                    <token to spend>  = USDT // default
+                    note: We are swapping X Amount of USDT <default>, we spend USDT to acquire SOL 
+                    
+                    6: Sell $250 SOL / Sell 0.4 SOL
+                    <token to buy/sell> = USDT // default
+                    <token to spend>  = SOL 
+                    note: We are swapping X Amount of USDT <default>, we spend USDT to acquire SOL 
+
                     Respond ONLY with a JSON object containing:
                     {   
                         "reply":"Generated reponse message",

@@ -137,19 +137,11 @@ export default function Dialog({
 }
 
 // JournalDialog component for managing logs
-type JournalIntent = {
-  intent: "journal";
-  token: string;
-  price?: number;
-  amount: number;
-  profit?: number;
-};
-
 type JournalDialogProps = {
   closeFn: VoidFunction;
-  onSubmit: (data: Partial<JournalIntent>) => void;
+  onSubmit: (data: Partial<Journal>) => void;
   onDelete?: VoidFunction;
-  initialData?: Partial<JournalIntent>;
+  initialData?: Partial<Journal>;
 };
 
 export const JournalDialog: React.FC<JournalDialogProps> = ({
@@ -158,11 +150,10 @@ export const JournalDialog: React.FC<JournalDialogProps> = ({
   onDelete,
   initialData,
 }) => {
-  const [formData, setFormData] = useState<Partial<JournalIntent>>({
-    intent: "journal",
+  const [formData, setFormData] = useState<Partial<Journal>>({
     token: initialData?.token ?? "",
     price: initialData?.price,
-    amount: initialData?.amount ?? 0,
+    amount: initialData?.amount,
     profit: initialData?.profit,
   });
 
@@ -176,21 +167,76 @@ export const JournalDialog: React.FC<JournalDialogProps> = ({
       <h2 className="text-xl font-bold mb-4">
         {initialData ? "Edit Journal Entry" : "Add Journal Entry"}
       </h2>
-      {["intent", "token", "price", "amount", "profit"].map((field) => (
-        <div key={field} className="mb-2">
-          <label className="block text-sm font-semibold mb-1" htmlFor={field}>
-            {field.toUpperCase()}
+      <Fragment>
+        <div key={"intent"} className="mb-2">
+          <label
+            className="block text-sm font-semibold mb-1"
+            htmlFor={"token"}
+          >
+            Coin
           </label>
           <input
             type="text"
-            id={field}
-            name={field}
-            value={formData[field as keyof JournalIntent] || ""}
+            id={"token"}
+            name={"token"}
+            value={formData["token"]}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
+            placeholder="Solana"
+            className="w-full px-3 py-2 border rounded-xl bg-transparent"
           />
         </div>
-      ))}
+        <div key={"intent"} className="mb-2">
+          <label
+            className="block text-sm font-semibold mb-1"
+            htmlFor={"token"}
+          >
+            Amount
+          </label>
+          <input
+            type="text"
+            id={"amount"}
+            name={"amount"}
+            value={formData["amount"]}
+            onChange={handleChange}
+            placeholder="amount in USD"
+            className="w-full px-3 py-2 border rounded-xl bg-transparent"
+          />
+        </div>
+        <div key={"intent"} className="mb-2">
+          <label
+            className="block text-sm font-semibold mb-1"
+            htmlFor={"price"}
+          >
+            Price
+          </label>
+          <input
+            type="text"
+            id={"price"}
+            name={"price"}
+            value={formData["price"]}
+            onChange={handleChange}
+            placeholder="100"
+            className="w-full px-3 py-2 border rounded-xl bg-transparent"
+          />
+        </div>
+        <div key={"intent"} className="mb-2">
+          <label
+            className="block text-sm font-semibold mb-1"
+            htmlFor={"profit"}
+          >
+            Profit / Loss
+          </label>
+          <input
+            type="text"
+            id={"profit"}
+            name={"profit"}
+            value={formData["profit"]}
+            onChange={handleChange}
+            placeholder="20"
+            className="w-full px-3 py-2 border rounded-xl bg-transparent"
+          />
+        </div>
+      </Fragment>
 
       <div className="flex justify-between mt-4">
         <button
@@ -230,8 +276,8 @@ export const JournalDialog: React.FC<JournalDialogProps> = ({
 
 // Example usage
 export const openJournalDialog = (
-  initialData?: Partial<JournalIntent>,
-  onSubmit?: (data: Partial<JournalIntent>) => void,
+  initialData?: Partial<Journal>,
+  onSubmit?: (data: Partial<Journal>) => void,
   onDelete?: VoidFunction,
 ) => {
   showDialog(({ closeFn }) => (

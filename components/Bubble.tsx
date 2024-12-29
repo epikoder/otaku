@@ -10,10 +10,10 @@ import {
 import Markdown from "react-markdown";
 import { showAlertDialog, showDialog } from "./Dialog";
 import { SendIcon } from "./Icons";
-import { swapToken, transferToken } from "@utils/web3";
+import { connection, swapToken, transferToken } from "@utils/web3";
 import { __ChatContext__ } from "../providers/chat.provider.client";
 import WalletConnect from "./WallectConnect";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, SendTransactionError } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { BaseSignInMessageSignerWalletAdapter } from "@solana/wallet-adapter-base";
 
@@ -46,11 +46,21 @@ const prepareIntent = (
             if (!account) {
                 return { intent: "login_intent" };
             }
-            if (!intent.coint_a || !intent.coint_b) {
+            if (!intent.coin_a || !intent.coin_b) {
+                console.log(
+                    "Missing BASE OR QUOTE",
+                    intent.coin_a,
+                    intent.coin_b,
+                    intent,
+                );
                 return;
             }
 
-            if (intent.coin_a_amount == 0 && intent.coin_b_amount == 0) {
+            if (
+                (intent.coin_a_amount && intent.coin_a_amount == 0) &&
+                (intent.coin_b_amount && intent.coin_b_amount == 0)
+            ) {
+                console.log("Missing Invalid amount", intent);
                 return;
             }
             return intent;
@@ -239,11 +249,20 @@ export const SystemBubble = (message: SystemMessage) => {
                 return (
                     <button
                         className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md font-semibold"
-                        onClick={() =>
-                            swapToken(
-                                intent,
-                                wallet as unknown as BaseSignInMessageSignerWalletAdapter,
-                            )}
+                        onClick={() => {
+                            try {
+                                swapToken(
+                                    intent,
+                                    wallet as unknown as BaseSignInMessageSignerWalletAdapter,
+                                );
+                            } catch (error) {
+                                console.log(
+                                    (error as SendTransactionError).getLogs(
+                                        connection,
+                                    ),
+                                );
+                            }
+                        }}
                     >
                         Execute Swap
                     </button>

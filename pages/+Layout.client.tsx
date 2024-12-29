@@ -79,19 +79,43 @@ const ChatHistory = () => {
 };
 
 const TradeLog = () => {
+    const [isOpen, setIsOpen] = useState(false);
     const account = useSelectedAccount();
+    const ref = useRef<HTMLButtonElement>(null);
+    
     return (
         <>
             {account && (
                 <Fragment>
-                    <button className="md:flex items-center gap-4 hidden">
+                    <button
+                        ref={ref}
+                        className="md:flex items-center gap-4 hidden"
+                        onClick={() => {
+                            setIsOpen(!isOpen);
+                        }}
+                    >
                         <ChartLog className="bg-[#303030] p-1 size-8 rounded-md" />
                         <span className="md:hidden">
                             New chat
                         </span>
                     </button>
-                    <div className="border-t border-zinc-200 w-full">
-                        <JournalLog/>
+                    <div
+                        className={`border-t border-zinc-200 w-full ${
+                            isOpen
+                                ? "md:absolute top-16 md:max-w-sm md:bg-[#303030] md:p-4 md:rounded-lg md:border-0"
+                                : "hidden"
+                        }`}
+                        style={{
+                            right: isOpen
+                                ? `${
+                                    window.innerWidth -
+                                    ref.current!.getBoundingClientRect().left -
+                                    30
+                                }px`
+                                : undefined,
+                        }}
+                    >
+                        <JournalLog />
                     </div>
                 </Fragment>
             )}
@@ -101,7 +125,6 @@ const TradeLog = () => {
 
 const Nav = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
     return (
         <Fragment>
             <button
@@ -111,7 +134,6 @@ const Nav = () => {
                 Menu
             </button>
             <div
-                ref={ref}
                 className={`z-40 absolute inset-0 bg-transparent ${
                     !isOpen ? "hidden" : ""
                 }`}

@@ -65,8 +65,8 @@ export default function () {
                 {...{
                     intent: {
                         intent: "swap",
-                        coint_a: "SOL",
-                        coint_b: "USDC",
+                        coin_a: "SOL",
+                        coin_b: "USDC",
                         coin_a_amount: 100,
                         coin_b_amount: 0,
                     },

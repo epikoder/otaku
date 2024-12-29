@@ -8,8 +8,8 @@ type Intent =
 
 interface SwapIntent {
     intent: "swap";
-    coint_a: string;
-    coint_b: string;
+    coin_a: string;
+    coin_b: string;
     coin_a_amount: number;
     coin_b_amount: number;
 }
