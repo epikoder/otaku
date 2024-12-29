@@ -5,7 +5,7 @@ class JournalDataStore extends DataStore<Journal> {}
 
 class ChatDataStore extends DataStore<Chat> {}
 
-const __DataStoreContext__ = createContext({
+export const __DataStoreContext__ = createContext({
     chat: new ChatDataStore("chats"),
     journal: new JournalDataStore("journal"),
 });
