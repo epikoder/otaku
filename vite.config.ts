@@ -2,10 +2,19 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import vike from "vike/plugin";
 import { fileURLToPath, URL } from "url";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 const BACKEND_API = "http://127.0.0.1:5800";
 export default defineConfig({
-  plugins: [vike({}), react({})],
+  plugins: [
+    vike({}),
+    react({}),
+    nodePolyfills({
+      globals: {
+        Buffer: true,
+      },
+    }),
+  ],
   server: {
     proxy: process.env.NODE_ENV == "development"
       ? {
@@ -17,7 +26,7 @@ export default defineConfig({
         },
         "/live": {
           target: BACKEND_API,
-          ws: true
+          ws: true,
         },
       }
       : undefined,

@@ -17,7 +17,6 @@ import {
     BaseMessageSignerWalletAdapter,
     BaseSignInMessageSignerWalletAdapter,
 } from "@solana/wallet-adapter-base";
-import { Buffer } from "buffer";
 
 const SOLANA_ENDPOINT = clusterApiUrl("testnet");
 export const connection = new Connection(
