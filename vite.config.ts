@@ -17,6 +17,7 @@ export default defineConfig({
         },
         "/live": {
           target: BACKEND_API,
+          ws: true
         },
       }
       : undefined,

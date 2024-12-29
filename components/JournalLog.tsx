@@ -58,14 +58,14 @@ const JournalLog = () => {
         </button>
       </div>
 
-      <div className="mt-6 space-y-4">
+      <div className="mt-6 space-y-4 h-full overflow-y-scroll">
         {logEntries.length === 0
-          ? <p className="text-gray-500">No journal entries yet.</p>
+          ? <p className="text-gray-500 text-center">No journal entries yet.</p>
           : (
             logEntries.map((entry) => (
               <div
                 key={entry.id} // Use entry.id for the key
-                className="bg-gray-100 p-4 rounded shadow flex justify-between items-center"
+                className="bg-[#1E1E1E] p-4 rounded shadow flex justify-between items-center"
               >
                 <div>
                   {Object.entries(entry)

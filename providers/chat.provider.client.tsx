@@ -1,3 +1,4 @@
+import { useWallet } from "@solana/wallet-adapter-react";
 import { GetIntentFromPrompt } from "@utils/get_intent_from_prompt";
 import { createContext, ReactNode, useEffect, useState } from "react";
 import { navigate } from "vike/client/router";
@@ -22,19 +23,22 @@ export const __ChatContext__ = createContext<{
 const ChatProvider = ({ children }: { children: ReactNode }): ReactNode => {
     const [chatLog, setChatLog] = useState<Message[]>([]);
     const [isTyping, setIsTyping] = useState<boolean>(false);
+    const { publicKey } = useWallet();
 
     const addChat = async (message: UserMessage) => {
         setChatLog((prev) => [...prev, message]);
 
         setIsTyping(true);
-        GetIntentFromPrompt(message.messaage).then(
-            (systemMessage: SystemMessage) => {
+        GetIntentFromPrompt(message.messaage, publicKey?.toBase58()).then(
+            (systemMessage) => {
                 setIsTyping(false);
-                setChatLog((prev) => [...prev, {
-                    reply: systemMessage.reply,
-                    sender: "system",
-                    intent: systemMessage.intent,
-                }]);
+                if (systemMessage) {
+                    setChatLog((prev) => [...prev, {
+                        reply: systemMessage.reply,
+                        sender: "system",
+                        intent: systemMessage.intent,
+                    }]);
+                }
             },
         );
     };

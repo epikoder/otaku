@@ -1,13 +1,24 @@
 import { createRedisCache, delay, getArg } from "./server/util";
-import { Elysia, t } from "elysia";
+import { Elysia, t, TSchema } from "elysia";
 import { staticPlugin } from "@elysiajs/static";
 import "./dist/server/entry.mjs";
 import { vikeMiddleware } from "server/middleware";
 import { getIntent } from "server/prompt/intent";
+import { ElysiaWS } from "elysia/ws";
+import { WebSocketServer } from "vite";
+import { ServerWebSocket } from "bun";
+import { TypeCheck } from "elysia/type-system";
 
 Bun.env.NODE_ENV = process.env.NODE_ENV ?? "production";
 const port = getArg("port", process.env.PORT ?? 9000);
 const hostname = getArg("host", "127.0.0.1");
+
+const __CLIENTS__ = new Map<
+    string,
+    ElysiaWS<ServerWebSocket<{ validator?: TypeCheck<TSchema> }>>
+>();
+
+const __CHAT__ = new Map<string, string[]>();
 
 const vike = new Elysia().get("*", async (req: Request) => {
     const { body, headers, statusCode } = await vikeMiddleware(req);
@@ -17,10 +28,10 @@ const vike = new Elysia().get("*", async (req: Request) => {
     });
 });
 
-const cache = new Elysia().decorate(
-    "cache",
-    await createRedisCache(),
-);
+// const cache = new Elysia().decorate(
+//     "cache",
+//     await createRedisCache(),
+// );
 
 const app = new Elysia({
     serve: {
@@ -32,7 +43,7 @@ const app = new Elysia({
     alwaysStatic: true,
 }));
 
-app.use(cache).post("/streams", async ({ cache, request }) => {
+app.post("/streams", async ({ request }) => {
     if (request.headers.get("api-key") !== Bun.env.STREAM_KEY) {
         return new Response(null, { status: 401 });
     }
@@ -40,11 +51,13 @@ app.use(cache).post("/streams", async ({ cache, request }) => {
 
     const data = await request.json();
     try {
-        delay("publish-stream", async () =>
-            cache.publish(
-                "/stream",
-                JSON.stringify(data),
-            ), 2000);
+        delay("publish-stream", async () => {
+            // cache.publish(
+            //     "/stream",
+            //     JSON.stringify(data),
+            // );
+            __CLIENTS__.forEach((ws) => ws.send(JSON.stringify(data)));
+        }, 2000);
     } catch (error) {
         console.error(error);
     }
@@ -54,41 +67,52 @@ app.use(cache).post("/streams", async ({ cache, request }) => {
 app.ws("/live", {
     open(ws) {
         console.log(`${ws.id} connected`);
-        new Promise(async () => {
-            (await createRedisCache()).subscribe(
-                "/stream",
-                (msg) => {
-                    ws.send(msg);
-                },
-            );
-        });
+        // new Promise(async () => {
+        //     (await createRedisCache()).subscribe(
+        //         "/stream",
+        //         (msg) => {
+        //             ws.send(msg);
+        //         },
+        //     );
+        // });
+        __CLIENTS__.set(
+            ws.id,
+            ws as unknown as ElysiaWS<
+                ServerWebSocket<{
+                    validator?: TypeCheck<TSchema>;
+                }>
+            >,
+        );
     },
     close(ws, code, message) {
         console.log(`${ws.id} disconnected, ${code} ${message}`);
+        __CLIENTS__.delete(ws.id);
     },
     message(ws) {
         ws.send("pong");
     },
 });
 
-app.use(cache).get(
+app.get(
     "/api/chat-history/:address",
-    async ({ cache, params: { address } }) => {
+    async ({ params: { address } }) => {
         if (address) {
-            const chatString = await cache.get(address);
-            if (!chatString) return {};
-            const chat = JSON.parse(chatString);
+            const chat = __CHAT__.get(address) ?? [];
             return { chat };
         }
     },
 );
 
-app.use(cache).post(
+app.post(
     "/api/intent",
-    async ({ cache, request }) => {
+    async ({ request }) => {
         const body = await request.json();
         if (!body.prompt) {
             return {};
+        }
+        if (body.address) {
+            const chats = __CHAT__.get(body.address) ?? [];
+            __CHAT__.set(body.address, chats.concat(body.prompt));
         }
         return await getIntent(body.prompt);
     },

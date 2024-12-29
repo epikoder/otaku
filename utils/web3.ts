@@ -1,4 +1,9 @@
-import { clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
+import {
+    clusterApiUrl,
+    Connection,
+    LAMPORTS_PER_SOL,
+    PublicKey,
+} from "@solana/web3.js";
 import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
     sendAndConfirmTransaction,
@@ -8,7 +13,11 @@ import {
 import { NATIVE_MINT } from "@solana/spl-token";
 import axios from "axios";
 import { API_URLS, parseTokenAccountResp } from "@raydium-io/raydium-sdk-v2";
-import { BaseMessageSignerWalletAdapter } from "@solana/wallet-adapter-base";
+import {
+    BaseMessageSignerWalletAdapter,
+    BaseSignInMessageSignerWalletAdapter,
+} from "@solana/wallet-adapter-base";
+import { Buffer } from "buffer";
 
 const SOLANA_ENDPOINT = clusterApiUrl("testnet");
 export const connection = new Connection(
@@ -83,8 +92,8 @@ export const swapToken = async (
     wallet: BaseMessageSignerWalletAdapter,
 ) => {
     const inputMint = NATIVE_MINT.toBase58();
-    const outputMint = "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"; // RAY
-    const amount = 10000;
+    const outputMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"; // RAY
+    const amount = .3 * LAMPORTS_PER_SOL;
     const slippage = 0.5; // in percent, for this example, 0.5 means 0.5%
     const txVersion = "V0"; // or LEGACY
     const isV0Tx = txVersion === "V0";
@@ -199,6 +208,13 @@ export const swapToken = async (
 
 export const transferToken = async (
     intent: TransferIntent,
-    account: PublicKey,
+    account: BaseSignInMessageSignerWalletAdapter,
     // provider: Provider,
 ) => {};
+
+import {
+    createJupiterApiClient,
+    QuoteGetRequest,
+    QuoteResponse,
+    ResponseError,
+} from "@jup-ag/api";

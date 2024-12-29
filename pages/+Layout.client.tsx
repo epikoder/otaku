@@ -53,7 +53,10 @@ export default function ({ children }: { children: ReactNode }) {
 
 const NewChat = () => {
     return (
-        <button onClick={startNewChat} className="flex items-center gap-4">
+        <button
+            onClick={startNewChat}
+            className="flex items-center gap-4 hover:bg-[#1e1e1ec5] p-2 md:p-0 rounded-xl transition-all duration-200"
+        >
             <MessageAdd className="bg-[#303030] p-1 size-8 rounded-md" />
             <span className="md:hidden">
                 New chat
@@ -67,10 +70,10 @@ const ChatHistory = () => {
     return (
         <>
             {account && (
-                <button className="flex items-center gap-4">
+                <button className="flex items-center gap-4 hover:bg-[#1e1e1ec5] p-2 md:p-0 rounded-xl transition-all duration-200">
                     <ClockForward className="bg-[#303030] p-1 size-8 rounded-md" />
                     <span className="md:hidden">
-                        Chat history
+                        Transactions
                     </span>
                 </button>
             )}
@@ -82,14 +85,14 @@ const TradeLog = () => {
     const [isOpen, setIsOpen] = useState(false);
     const account = useSelectedAccount();
     const ref = useRef<HTMLButtonElement>(null);
-    
+
     return (
         <>
             {account && (
                 <Fragment>
                     <button
                         ref={ref}
-                        className="md:flex items-center gap-4 hidden"
+                        className="md:flex items-center gap-4 hidden hover:bg-[#1e1e1ec5] p-2 md:p-0 rounded-xl transition-all duration-200"
                         onClick={() => {
                             setIsOpen(!isOpen);
                         }}
@@ -103,7 +106,7 @@ const TradeLog = () => {
                         className={`border-t border-zinc-200 w-full ${
                             isOpen
                                 ? "md:absolute top-16 md:max-w-sm md:bg-[#303030] md:p-4 md:rounded-lg md:border-0"
-                                : "hidden"
+                                : "md:hidden"
                         }`}
                         style={{
                             right: isOpen

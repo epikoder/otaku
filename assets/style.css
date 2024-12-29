@@ -22,10 +22,10 @@
     #nav-menu.active {
         display: flex;
         flex-direction: column;
-        gap: .5rem;
+        /* gap: .5rem; */
         width: 20rem;
         position: absolute;
-        height: calc(100vh - 80px);
+        height: 60%;
         top: 1rem;
         right: 1rem;
         z-index: 50;

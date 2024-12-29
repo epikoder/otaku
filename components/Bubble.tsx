@@ -8,8 +8,8 @@ import {
     useState,
 } from "react";
 import Markdown from "react-markdown";
-import { showAlertDialog, showDialog } from "./Dialog";
-import { SendIcon } from "./Icons";
+import { openJournalDialog, showAlertDialog, showDialog } from "./Dialog";
+import { ActivityIndicator, SendIcon } from "./Icons";
 import { connection, swapToken, transferToken } from "@utils/web3";
 import { __ChatContext__ } from "../providers/chat.provider.client";
 import WalletConnect from "./WallectConnect";
@@ -75,6 +75,7 @@ const prepareIntent = (
 };
 
 export const SystemBubble = (message: SystemMessage) => {
+    const [isLoading, setIsLoading] = useState(false);
     const { publicKey: account } = useWallet();
     const wallet = useWallet();
 
@@ -239,19 +240,35 @@ export const SystemBubble = (message: SystemMessage) => {
             case "transfer":
                 return (
                     <button
-                        className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md font-semibold"
-                        onClick={() => transferToken(intent, account!)}
+                        className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md font-semibold flex items-center gap-3"
+                        disabled={isLoading}
+                        onClick={async () => {
+                            setIsLoading(true);
+                            try {
+                                await transferToken(
+                                    intent,
+                                    wallet as unknown as BaseSignInMessageSignerWalletAdapter,
+                                );
+                            } catch (error) {
+                            }
+                            setIsLoading(false);
+                        }}
                     >
-                        Execute Transfer
+                        <span>
+                            Execute Transfer
+                        </span>
+                        {isLoading && <ActivityIndicator className="size-8" />}
                     </button>
                 );
             case "swap":
                 return (
                     <button
-                        className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md font-semibold"
-                        onClick={() => {
+                        className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md font-semibold flex items-center gap-3"
+                        disabled={isLoading}
+                        onClick={async () => {
+                            setIsLoading(true);
                             try {
-                                swapToken(
+                                await swapToken(
                                     intent,
                                     wallet as unknown as BaseSignInMessageSignerWalletAdapter,
                                 );
@@ -262,17 +279,29 @@ export const SystemBubble = (message: SystemMessage) => {
                                     ),
                                 );
                             }
+                            setIsLoading(false);
                         }}
                     >
-                        Execute Swap
+                        <span>Execute Swap</span>
+                        {isLoading && <ActivityIndicator className="size-8" />}
                     </button>
                 );
             case "token":
+                return (
+                    <div>
+                    </div>
+                );
             case "journal":
                 return (
                     <button
                         className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md font-semibold"
-                        onClick={() => {}}
+                        onClick={() =>
+                            openJournalDialog({
+                                amount: intent.amount,
+                                token: intent.token,
+                                profit: intent.profit,
+                                price: intent.price,
+                            })}
                     >
                         Update Journal
                     </button>

@@ -28,9 +28,19 @@ export default function () {
   };
 
   useEffect(() => {
-    if (account) {
-      _load_chat_history(account.toString());
-    }
+    if (!account) return;
+    _load_chat_history(account.toString());
+
+    const ws = new WebSocket("/live");
+    ws.onopen = () => {
+      console.log("connected");
+    };
+
+    ws.onmessage = (msg) => {
+      const tranx = msg.data.transactions;
+    };
+
+    return () => ws.close();
   }, [account]);
 
   return (
