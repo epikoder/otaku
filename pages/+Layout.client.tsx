@@ -1,4 +1,4 @@
-import { Fragment, ReactNode } from "react";
+import { Fragment, ReactNode, useEffect, useRef } from "react";
 import logoUrl from "../assets/logo.svg";
 import { Alert, ChartLog, ClockForward, MessageAdd } from "@components/Icons";
 import useSelectedAccount from "@hooks/useSelectedAccount";
@@ -10,6 +10,7 @@ import {
 } from "@solana/wallet-adapter-wallets";
 import WalletConnect from "@components/WallectConnect";
 import { startNewChat } from "../providers/chat.provider.client";
+import DataStoreProvider from "../providers/datastore.provider.client";
 
 export default function ({ children }: { children: ReactNode }) {
     return (
@@ -19,40 +20,43 @@ export default function ({ children }: { children: ReactNode }) {
                 new TrustWalletAdapter(),
             ]}
         >
-            <ContactProvider>
-                <div className="max-w-screen-xl w-full p-4 mx-auto flex flex-col gap-3">
-                    <nav className="flex justify-between items-center">
-                        <a href="/">
-                            <img src={logoUrl} className="max-h-14" />
-                        </a>
-                        <div className="flex gap-4 items-center">
-                            <WalletConnect />
-                            <NewChat />
-                            <ChatHistory />
-                            <TradeLog />
-                        </div>
-                    </nav>
-                    <Fragment>
-                        {children}
-                    </Fragment>
-                    <footer className="h-12 flex gap-3 items-center justify-center text-xs">
-                        <Alert />
-                        <p className="text-[#A1A1A1]">
-                            Otaku’s Sensei could sometimes make misprediction
-                            and errors, please check important info and do
-                            proper research.
-                        </p>
-                    </footer>
-                </div>
-            </ContactProvider>
+            <DataStoreProvider>
+                <ContactProvider>
+                    <div className="max-w-screen-xl w-full p-4 mx-auto flex flex-col gap-3">
+                        <nav className="flex justify-between items-center">
+                            <a href="/">
+                                <img src={logoUrl} className="max-h-14" />
+                            </a>
+                            <div className="flex gap-4 items-center">
+                                <WalletConnect />
+                                <Nav />
+                            </div>
+                        </nav>
+                        <Fragment>
+                            {children}
+                        </Fragment>
+                        <footer className="h-12 flex gap-3 items-center justify-center text-xs">
+                            <Alert />
+                            <p className="text-[#A1A1A1]">
+                                Otaku’s Sensei could sometimes make
+                                misprediction and errors, please check important
+                                info and do proper research.
+                            </p>
+                        </footer>
+                    </div>
+                </ContactProvider>
+            </DataStoreProvider>
         </WalletProvider>
     );
 }
 
 const NewChat = () => {
     return (
-        <button onClick={startNewChat}>
+        <button onClick={startNewChat} className="flex items-center gap-4">
             <MessageAdd className="bg-[#303030] p-1 size-8 rounded-md" />
+            <span className="md:hidden">
+                New chat
+            </span>
         </button>
     );
 };
@@ -63,7 +67,10 @@ const ChatHistory = () => {
         <>
             {account && (
                 <button>
-                    <ClockForward className="bg-[#303030] p-1 size-8 rounded-md" />
+                    <ClockForward className="bg-[#303030] p-1 size-8 rounded-md flex items-center gap-4" />
+                    <span className="md:hidden">
+                        Chat history
+                    </span>
                 </button>
             )}
         </>
@@ -76,9 +83,39 @@ const TradeLog = () => {
         <>
             {account && (
                 <button>
-                    <ChartLog className="bg-[#303030] p-1 size-8 rounded-md" />
+                    <ChartLog className="bg-[#303030] p-1 size-8 rounded-md flex items-center gap-4" />
+                    <span className="md:hidden">
+                        New chat
+                    </span>
                 </button>
             )}
         </>
+    );
+};
+
+const Nav = () => {
+    const ref = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        
+    }) 
+    return (
+        <Fragment>
+            <button
+                className="md:hidden"
+                onClick={() => ref.current!.classList.toggle("active")}
+            >
+                Menu
+            </button>
+            <div
+                ref={ref}
+                id={"nav-menu"}
+                className=""
+                
+            >
+                <NewChat />
+                <ChatHistory />
+                <TradeLog />
+            </div>
+        </Fragment>
     );
 };

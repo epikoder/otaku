@@ -74,13 +74,9 @@ const prepareIntent = (
             return [intent];
         }
         case "token":
-            if (!account) {
-                return [{ intent: "login_intent" }];
-            }
+            return [{ ...intent }];
         case "journal":
-            if (!account) {
-                return [{ intent: "login_intent" }];
-            }
+            return [{ ...intent }];
         default:
             return [];
     }
@@ -169,7 +165,7 @@ export const SystemBubble = (message: SystemMessage) => {
             case "transfer:select_contact":
                 return (
                     <button
-                        className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md"
+                        className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md font-semibold"
                         onClick={() => {
                             showDialog(
                                 ({ closeFn }) => (
@@ -257,23 +253,31 @@ export const SystemBubble = (message: SystemMessage) => {
             case "transfer":
                 return (
                     <button
-                        className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md"
+                        className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md font-semibold"
                         onClick={() => transferToken(intent, account!)}
                     >
-                        Execute {intent.intent}
+                        Execute Transfer
                     </button>
                 );
             case "swap":
                 return (
                     <button
-                        className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md"
+                        className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md font-semibold"
                         onClick={() => swapToken(intent, account!)}
                     >
-                        Swap {intent.intent}
+                        Execute Swap
                     </button>
                 );
             case "token":
             case "journal":
+                return (
+                    <button
+                        className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md font-semibold"
+                        onClick={() => {}}
+                    >
+                        Update Journal
+                    </button>
+                );
             default:
                 break;
         }

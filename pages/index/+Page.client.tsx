@@ -9,6 +9,17 @@ import ChatProvider, {
 } from "../../providers/chat.provider.client";
 import PromptInput from "@components/PromptInput";
 
+const GreetingMessage = () => (
+  <div className="bg-[#292929] p-3 rounded-lg">
+    <p>GM, GM</p>
+    <br />
+    <p>
+      I am Sensei, your personal trading companion. I help you track your
+      trades, and automate swap and transfers. What can I do for you, mate?
+    </p>
+  </div>
+);
+
 export default function () {
   const account = useSelectedAccount();
 
@@ -50,15 +61,7 @@ const MessagesComponent = () => {
                 <div className="w-fit scale-75">
                   <img src={senseiUrl} alt="Sensei" />
                 </div>
-                <div className="bg-[#292929] p-3 rounded-lg">
-                  <p>GM, GM</p>
-                  <br />
-                  <p>
-                    I am Sensei, your personal trading companion. I help you
-                    track your trades, and automate swap and transfers. What can
-                    I do for you, mate?
-                  </p>
-                </div>
+                <GreetingMessage />
               </div>
             )}
             {chats.map((message, idx) => (

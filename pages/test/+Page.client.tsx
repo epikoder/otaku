@@ -1,8 +1,7 @@
 import { SystemBubble } from "@components/Bubble";
 import { __ContactContext__ } from "../../providers/contact.provider.client";
 import { useContext } from "react";
-import { Fragment } from "react/jsx-runtime";
-import ChatProvider from "providers/chat.provider.client";
+import ChatProvider from "../../providers/chat.provider.client";
 
 // Test your components here href: /test
 export default function () {
@@ -72,6 +71,19 @@ export default function () {
                         coin_b_amount: 0,
                     },
                     reply: "Test swap",
+                    sender: "system",
+                }}
+            />
+            <SystemBubble
+                {...{
+                    intent: {
+                        intent: "journal",
+                        amount: 20,
+                        token: "SOL",
+                        price: 185.45,
+                        profit: 5
+                    },
+                    reply: "Oh thats great let's add this to your journal for future reference",
                     sender: "system",
                 }}
             />
