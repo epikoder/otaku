@@ -10,98 +10,74 @@ import {
 import Markdown from "react-markdown";
 import { showAlertDialog, showDialog } from "./Dialog";
 import { SendIcon } from "./Icons";
-import useSelectedAccount from "@hooks/useSelectedAccount";
 import { swapToken, transferToken } from "@utils/web3";
 import { __ChatContext__ } from "../providers/chat.provider.client";
 import WalletConnect from "./WallectConnect";
 import { PublicKey } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { BaseSignInMessageSignerWalletAdapter } from "@solana/wallet-adapter-base";
 
 // Prepare intent
 const prepareIntent = (
     intent: Intent,
     account: PublicKey | null,
     contact: Record<string, string>,
-    reply: (message: SystemMessage) => void,
-): Intent[] => {
+): Intent | undefined => {
     switch (intent.intent) {
         case "transfer": {
             if (!account) {
-                return [{ intent: "login_intent" }];
+                return { intent: "login_intent" };
             }
             if (!intent.address) {
                 if (intent.contact) {
                     let address = contact[intent.contact];
                     if (!address) {
-                        return [{ intent: "transfer:select_contact" }];
+                        return { intent: "transfer:select_contact" };
                     }
                     intent.address = address;
                 }
                 if (!intent.address) {
-                    reply({
-                        reply:
-                            `Sorry, I'm unable to process your request due to missing fields`,
-                        sender: "system",
-                        intent: null,
-                    });
-                    return [];
+                    return;
                 }
             }
-            return [intent];
+            return intent;
         }
         case "swap": {
             if (!account) {
-                return [{ intent: "login_intent" }];
+                return { intent: "login_intent" };
             }
             if (!intent.coint_a || !intent.coint_b) {
-                reply({
-                    reply:
-                        "Please specify a Token to swap with: \n Example: Swap 3.5 SOL for USDC",
-                    sender: "system",
-                    intent: null,
-                });
-                return [];
+                return;
             }
 
             if (intent.coin_a_amount == 0 && intent.coin_b_amount == 0) {
-                reply({
-                    reply: `Yo! what magic are you trying to perform?`,
-                    sender: "system",
-                    intent: null,
-                });
-                return [];
+                return;
             }
-            return [intent];
+            return intent;
         }
         case "token":
-            return [{ ...intent }];
+            return intent;
         case "journal":
-            return [{ ...intent }];
+            return intent;
         default:
-            return [];
+            return;
     }
 };
 
 export const SystemBubble = (message: SystemMessage) => {
     const { publicKey: account } = useWallet();
-    const chatContext = useContext(__ChatContext__);
+    const wallet = useWallet();
 
     const { contact } = useContext(__ContactContext__);
-    const [str, setStr] = useState("");
     const [intents, setIntents] = useState(
         message.intent
-            ? prepareIntent(
+            ? [prepareIntent(
                 message.intent,
                 account,
                 contact,
-                chatContext.addSystemMessage,
-            )
+            )]
             : [],
     );
-
-    const renderText = async () => {
-        setStr(message.reply);
-    };
 
     const contactInputRef = useRef<HTMLInputElement>(null);
 
@@ -263,7 +239,11 @@ export const SystemBubble = (message: SystemMessage) => {
                 return (
                     <button
                         className="bg-[#F11313] text-white px-3 py-3 text-xs uppercase rounded-md font-semibold"
-                        onClick={() => swapToken(intent, account!)}
+                        onClick={() =>
+                            swapToken(
+                                intent,
+                                wallet as unknown as BaseSignInMessageSignerWalletAdapter,
+                            )}
                     >
                         Execute Swap
                     </button>
@@ -284,28 +264,23 @@ export const SystemBubble = (message: SystemMessage) => {
     };
 
     useEffect(() => {
-        renderText();
-    }, []);
-
-    useEffect(() => {
         if (account && message.intent) {
-            setIntents(prepareIntent(
+            setIntents([prepareIntent(
                 message.intent,
                 account,
                 contact,
-                chatContext.addSystemMessage,
-            ));
+            )]);
         }
     }, [account]);
 
     return (
         <div>
             <div className="w-fit max-w-[60%] mr-auto bg-[#292929] p-4 rounded-t-2xl rounded-r-2xl">
-                <Markdown>{str}</Markdown>
+                <Markdown>{message.reply}</Markdown>
             </div>
             {intents.length != 0 && (
                 <div className="flex flex-wrap gap-3 py-2">
-                    {intents.map((intent, idx) => (
+                    {intents.filter((i) => !!i).map((intent, idx) => (
                         <Fragment key={idx}>
                             {renderIntent(intent)}
                         </Fragment>
